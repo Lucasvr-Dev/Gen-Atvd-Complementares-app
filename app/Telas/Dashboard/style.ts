@@ -3,26 +3,20 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
 
-  root: {
-    flex: 1,
-    backgroundColor: "whitesmoke",
-  },
+  root: { flex: 1, backgroundColor: "#F3F4F8" },
 
-  /* ── Top Bar ── */
   topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: "whitesmoke",
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
   },
 
-  menuButton: {
-    padding: 4,
-  },
+  menuButton: { padding: 4 },
 
   topBarCenter: {
     flexDirection: "row",
@@ -32,26 +26,16 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  topBarTitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#1F2937",
-  },
+  topBarTitle: { fontSize: 15, fontWeight: "600", color: "#1F2937" },
 
-  /* ── Scroll ── */
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
+  scrollContent: { paddingHorizontal: 16, paddingTop: 20 },
 
-  /* ── Saudação ── */
   greetingTitle: {
     fontSize: 26,
     fontWeight: "800",
     color: "#111827",
     marginBottom: 4,
   },
-
   greetingSubtitle: {
     fontSize: 14,
     color: "#6B7280",
@@ -59,14 +43,8 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  /* ── Seção ── */
-  sectionLabel: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 10,
-  },
+  sectionLabel: { fontSize: 13, color: "#6B7280", marginBottom: 10 },
 
-  /* ── Cards de Curso ── */
   courseCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -79,10 +57,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
 
-  courseCardActive: {
-    backgroundColor: "#EEF2FF",
-    borderColor: "#6366F1",
-  },
+  courseCardActive: { backgroundColor: "#EEF2FF", borderColor: "#6366F1" },
 
   courseIconBox: {
     width: 44,
@@ -91,14 +66,8 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
-  courseIconBoxActive: {
-    backgroundColor: "#6366F1",
-  },
-
-  courseIconBoxInactive: {
-    backgroundColor: "#F3F4F6",
-  },
+  courseIconBoxActive: { backgroundColor: "#6366F1" },
+  courseIconBoxInactive: { backgroundColor: "#F3F4F6" },
 
   courseName: {
     fontSize: 15,
@@ -106,13 +75,8 @@ export const styles = StyleSheet.create({
     color: "#111827",
     marginBottom: 2,
   },
+  courseProgress: { fontSize: 13, color: "#6B7280" },
 
-  courseProgress: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
-
-  /* ── Stats Grid ── */
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -145,13 +109,8 @@ export const styles = StyleSheet.create({
     color: "#111827",
     marginBottom: 2,
   },
+  statLabel: { fontSize: 12.5, color: "#6B7280" },
 
-  statLabel: {
-    fontSize: 12.5,
-    color: "#6B7280",
-  },
-
-  /* ── Card genérico (donut / barras / submissões) ── */
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
@@ -168,36 +127,20 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  /* ── Donut ── */
-  donutContainer: {
-    alignItems: "center",
-    marginVertical: 8,
-  },
-
+  donutContainer: { alignItems: "center", marginVertical: 8 },
   donutWrapper: {
     alignItems: "center",
     justifyContent: "center",
     width: 180,
     height: 180,
   },
-
   donutCenter: {
     position: "absolute",
     alignItems: "center",
     justifyContent: "center",
   },
-
-  donutPercent: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: "#111827",
-  },
-
-  donutLabel: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginTop: 2,
-  },
+  donutPercent: { fontSize: 26, fontWeight: "800", color: "#111827" },
+  donutLabel: { fontSize: 12, color: "#6B7280", marginTop: 2 },
 
   legendRow: {
     flexDirection: "row",
@@ -206,35 +149,12 @@ export const styles = StyleSheet.create({
     marginTop: 14,
     gap: 16,
   },
+  legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
+  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendText: { fontSize: 12.5, color: "#374151" },
 
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-
-  legendText: {
-    fontSize: 12.5,
-    color: "#374151",
-  },
-
-  /* ── Barras horizontais ── */
-  barsContainer: {
-    paddingRight: 8,
-  },
-
-  barRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
+  barsContainer: { paddingRight: 8 },
+  barRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
   barLabel: {
     width: 70,
     fontSize: 12,
@@ -242,7 +162,6 @@ export const styles = StyleSheet.create({
     textAlign: "right",
     marginRight: 8,
   },
-
   barTrack: {
     flex: 1,
     height: 10,
@@ -250,36 +169,13 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     overflow: "hidden",
   },
+  barFill: { height: "100%", backgroundColor: "#C7D2FE", borderRadius: 5 },
 
-  barFill: {
-    height: "100%",
-    backgroundColor: "#C7D2FE",
-    borderRadius: 5,
-  },
+  axisRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
+  axisLabel: { width: 70, marginRight: 8 },
+  axisLine: { flex: 1, flexDirection: "row", justifyContent: "space-between" },
+  axisTick: { fontSize: 10, color: "#9CA3AF" },
 
-  axisRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 6,
-  },
-
-  axisLabel: {
-    width: 70,
-    marginRight: 8,
-  },
-
-  axisLine: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  axisTick: {
-    fontSize: 10,
-    color: "#9CA3AF",
-  },
-
-  /* ── Submissões ── */
   submissionRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -288,14 +184,12 @@ export const styles = StyleSheet.create({
     borderBottomColor: "#F3F4F6",
     gap: 10,
   },
-
   submissionTitle: {
     fontSize: 14.5,
     fontWeight: "600",
     color: "#111827",
     marginBottom: 6,
   },
-
   submissionMeta: {
     flexDirection: "row",
     alignItems: "center",
@@ -309,25 +203,11 @@ export const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 6,
   },
+  areaBadgeText: { fontSize: 11, color: "#6366F1", fontWeight: "600" },
 
-  areaBadgeText: {
-    fontSize: 11,
-    color: "#6366F1",
-    fontWeight: "600",
-  },
+  submissionMetaText: { fontSize: 11.5, color: "#9CA3AF" },
 
-  submissionMetaText: {
-    fontSize: 11.5,
-    color: "#9CA3AF",
-  },
-
-  /* ── Status Badge ── */
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   statusBadgeText: {
     fontSize: 11.5,
     fontWeight: "600",
