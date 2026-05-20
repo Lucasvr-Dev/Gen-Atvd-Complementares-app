@@ -10,8 +10,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "#0D1F3C",
   },
 
-  /* Camada do gradiente com dimensões físicas da tela,
-     posicionada para cobrir além dos limites do layout pai */
   gradientLayer: {
     position: "absolute",
     top: -200,
@@ -33,7 +31,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
 
-  /* ── Logo ── */
   logoArea: {
     marginBottom: 36,
     alignItems: "center",
@@ -45,7 +42,6 @@ export const styles = StyleSheet.create({
     height: 130,
   },
 
-  /* ── Título ── */
   title: {
     fontSize: 26,
     fontWeight: "800",
@@ -61,7 +57,6 @@ export const styles = StyleSheet.create({
     marginBottom: 36,
   },
 
-  /* ── Form ── */
   form: {
     width: "100%",
     maxWidth: 420,
@@ -97,7 +92,6 @@ export const styles = StyleSheet.create({
     padding: 4,
   },
 
-  /* ── Botão ── */
   loginButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -121,7 +115,6 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  /* ── Esqueci senha ── */
   forgotWrapper: {
     alignItems: "center",
     marginTop: 18,
