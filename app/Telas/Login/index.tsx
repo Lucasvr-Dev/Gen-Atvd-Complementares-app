@@ -1,3 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
@@ -10,10 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { styles } from "./style";
@@ -29,14 +28,12 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     console.log("Login:", { email, password });
-    // Navega para o Dashboard e remove a tela de login do histórico
-    // (impede voltar para o login pelo botão voltar)
+    // Usa replace para impedir voltar ao login após logar
     router.replace("/Telas/Dashboard");
   };
 
   return (
     <View style={styles.root}>
-      {/* Gradiente ancorado à tela física - ignora layout pai */}
       <View style={styles.gradientLayer} pointerEvents="none">
         <LinearGradient
           colors={["#0D1F3C", "#162840", "#2E2016", "#1A0E08"]}
@@ -58,15 +55,11 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            {
-              paddingTop: insets.top + 41,
-              paddingBottom: insets.bottom + 55,
-            },
+            { paddingTop: insets.top + 41, paddingBottom: insets.bottom + 55 },
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Logo ── */}
           <View style={styles.logoArea}>
             <Image
               source={logoSenac}
@@ -75,13 +68,10 @@ export default function LoginScreen() {
             />
           </View>
 
-          {/* ── Título ── */}
           <Text style={styles.title}>Entrar no Sistema</Text>
           <Text style={styles.subtitle}>Faça login para continuar</Text>
 
-          {/* ── Form ── */}
           <View style={styles.form}>
-            {/* E-mail */}
             <Text style={styles.fieldLabel}>E-mail</Text>
             <View style={styles.inputWrapper}>
               <TextInput
@@ -96,7 +86,6 @@ export default function LoginScreen() {
               />
             </View>
 
-            {/* Senha */}
             <Text style={[styles.fieldLabel, { marginTop: 18 }]}>Senha</Text>
             <View style={styles.inputWrapper}>
               <TextInput
@@ -119,7 +108,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Botão entrar */}
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleLogin}
@@ -128,7 +116,6 @@ export default function LoginScreen() {
               <Text style={styles.loginButtonText}>Entrar</Text>
             </TouchableOpacity>
 
-            {/* Esqueci senha */}
             <TouchableOpacity style={styles.forgotWrapper}>
               <Text style={styles.forgotText}>Esqueci minha senha</Text>
             </TouchableOpacity>
