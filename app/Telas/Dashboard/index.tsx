@@ -1,22 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, G } from "react-native-svg";
 
-import SideDrawer, { MenuItemKey } from "../MenuLateral/index";
+import SideDrawer from "../../../app/componentes/SideDrawer";
+import { useDrawerNavigation } from "../../../app/hooks/userDrawerNavigation";
 import { styles } from "./style";
 
-/* ─────────────────────────────────────────
-   MOCK DATA — substitua por dados reais
-───────────────────────────────────────── */
 const currentUser = {
   name: "Vitor Shampo",
   email: "vitorshampo@gmail.com",
@@ -120,16 +117,15 @@ const submissions: Submission[] = [
   },
 ];
 
-/* ─────────────────────────────────────────
-   Donut Chart (SVG)
-───────────────────────────────────────── */
-interface DonutProps {
+function DonutChart({
+  approved,
+  pending,
+  rejected,
+}: {
   approved: number;
   pending: number;
   rejected: number;
-}
-
-function DonutChart({ approved, pending, rejected }: DonutProps) {
+}) {
   const size = 180;
   const strokeWidth = 26;
   const radius = (size - strokeWidth) / 2;
@@ -139,7 +135,6 @@ function DonutChart({ approved, pending, rejected }: DonutProps) {
   const approvedLen = (approved / total) * circumference;
   const pendingLen = (pending / total) * circumference;
   const rejectedLen = (rejected / total) * circumference;
-
   const percent = Math.round((approved / total) * 100);
 
   return (
@@ -163,7 +158,6 @@ function DonutChart({ approved, pending, rejected }: DonutProps) {
             fill="transparent"
             strokeDasharray={`${approvedLen} ${circumference}`}
             strokeDashoffset={0}
-            strokeLinecap="butt"
           />
           <Circle
             cx={size / 2}
@@ -174,7 +168,6 @@ function DonutChart({ approved, pending, rejected }: DonutProps) {
             fill="transparent"
             strokeDasharray={`${pendingLen} ${circumference}`}
             strokeDashoffset={-approvedLen}
-            strokeLinecap="butt"
           />
           <Circle
             cx={size / 2}
@@ -185,7 +178,6 @@ function DonutChart({ approved, pending, rejected }: DonutProps) {
             fill="transparent"
             strokeDasharray={`${rejectedLen} ${circumference}`}
             strokeDashoffset={-(approvedLen + pendingLen)}
-            strokeLinecap="butt"
           />
         </G>
       </Svg>
@@ -197,51 +189,35 @@ function DonutChart({ approved, pending, rejected }: DonutProps) {
   );
 }
 
-/* ─────────────────────────────────────────
-   DASHBOARD SCREEN
-───────────────────────────────────────── */
+function StatusBadge({ status }: { status: SubmissionStatus }) {
+  const configs = {
+    pendente: { bg: "#FEF3C7", color: "#B45309" },
+    aprovada: { bg: "#DCFCE7", color: "#15803D" },
+    rejeitada: { bg: "#FEE2E2", color: "#B91C1C" },
+  };
+  const c = configs[status];
+  return (
+    <View style={[styles.statusBadge, { backgroundColor: c.bg }]}>
+      <Text style={[styles.statusBadgeText, { color: c.color }]}>{status}</Text>
+    </View>
+  );
+}
+
 export default function DashboardScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const maxAreaValue = Math.max(...areaProgress.map((a) => a.value), 60);
 
-  // Estado do drawer lateral
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<MenuItemKey>("dashboard");
-
-  const handleSelectMenu = (key: MenuItemKey) => {
-    setActiveMenu(key);
-    // Navegação entre telas conforme o item clicado
-    switch (key) {
-      case "dashboard":
-        // já está na dashboard
-        break;
-      case "submissao":
-        //router.push("/Telas/NovaSubmissao");
-        break;
-      case "regras":
-        //router.push("/Telas/RegrasCurso");
-        break;
-      case "notificacoes":
-        // router.push("/Telas/Notificacoes");
-        break;
-    }
-  };
-
-  const handleLogout = () => {
-    // Limpar sessão/token aqui se necessário
-    router.replace("/Telas/Login");
-  };
+  const { drawerOpen, openDrawer, closeDrawer, handleSelect, handleLogout } =
+    useDrawerNavigation("dashboard");
 
   return (
     <View style={styles.root}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* ── Top Bar ── */}
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           style={styles.menuButton}
-          onPress={() => setDrawerOpen(true)}
+          onPress={openDrawer}
           activeOpacity={0.7}
         >
           <Ionicons name="menu" size={24} color="#1F2937" />
@@ -261,13 +237,11 @@ export default function DashboardScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Saudação ── */}
         <Text style={styles.greetingTitle}>Meu Painel</Text>
         <Text style={styles.greetingSubtitle}>
           Acompanhe seu progresso em atividades complementares
         </Text>
 
-        {/* ── Meus Cursos ── */}
         <Text style={styles.sectionLabel}>Meus Cursos</Text>
         {courses.map((course) => (
           <View
@@ -300,7 +274,6 @@ export default function DashboardScreen() {
           </View>
         ))}
 
-        {/* ── Stats Grid ── */}
         <View style={styles.statsGrid}>
           {stats.map((stat, idx) => (
             <View key={idx} style={styles.statCard}>
@@ -313,7 +286,6 @@ export default function DashboardScreen() {
           ))}
         </View>
 
-        {/* ── Progresso Geral (Donut) ── */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Progresso Geral</Text>
           <View style={styles.donutContainer}>
@@ -341,7 +313,6 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ── Progresso por Area ── */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Progresso por Area</Text>
           <View style={styles.barsContainer}>
@@ -371,7 +342,6 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ── Submissões Recentes ── */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Minhas Submissoes Recentes</Text>
           {submissions.map((sub, idx) => (
@@ -398,32 +368,14 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
 
-      {/* ── Menu Lateral ── */}
       <SideDrawer
         visible={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={closeDrawer}
         user={currentUser}
-        activeItem={activeMenu}
-        onSelect={handleSelectMenu}
+        activeItem="dashboard"
+        onSelect={handleSelect}
         onLogout={handleLogout}
       />
-    </View>
-  );
-}
-
-/* ─────────────────────────────────────────
-   Status Badge
-───────────────────────────────────────── */
-function StatusBadge({ status }: { status: SubmissionStatus }) {
-  const configs = {
-    pendente: { bg: "#FEF3C7", color: "#B45309" },
-    aprovada: { bg: "#DCFCE7", color: "#15803D" },
-    rejeitada: { bg: "#FEE2E2", color: "#B91C1C" },
-  };
-  const c = configs[status];
-  return (
-    <View style={[styles.statusBadge, { backgroundColor: c.bg }]}>
-      <Text style={[styles.statusBadgeText, { color: c.color }]}>{status}</Text>
     </View>
   );
 }
