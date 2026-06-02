@@ -7,6 +7,7 @@ import { MenuItemKey } from "../componentes/SideDrawer";
 const ROUTE_MAP: Record<MenuItemKey, string> = {
   dashboard: "/Telas/Dashboard",
   submissao: "/Telas/NovaSubmissao",
+  historico: "/Telas/HistoricoSubmissoes",
   regras: "/Telas/RegrasCurso",
   notificacoes: "/Telas/Notificacoes",
 };
