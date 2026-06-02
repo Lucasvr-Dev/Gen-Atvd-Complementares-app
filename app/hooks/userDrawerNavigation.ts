@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 
+import { useAuth } from "../../contexts/AuthContext";
 import { MenuItemKey } from "../componentes/SideDrawer";
 
 const ROUTE_MAP: Record<MenuItemKey, string> = {
@@ -23,6 +24,7 @@ export function useDrawerNavigation(
   currentItem: MenuItemKey,
 ): UseDrawerNavigationResult {
   const router = useRouter();
+  const { logout } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
@@ -37,10 +39,10 @@ export function useDrawerNavigation(
     [router, currentItem],
   );
 
-  const handleLogout = useCallback(() => {
-    // Limpar token/sessão aqui (AsyncStorage, contexto, etc.)
+  const handleLogout = useCallback(async () => {
+    await logout(); // limpa AsyncStorage + seta user para null
     router.replace("/Telas/Login");
-  }, [router]);
+  }, [router, logout]);
 
   return {
     drawerOpen,

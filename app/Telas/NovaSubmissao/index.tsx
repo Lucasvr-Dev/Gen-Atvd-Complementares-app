@@ -1,20 +1,8 @@
-// app/Telas/NovaSubmissao/index.tsx
-//
-// INTEGRAÇÃO COM O BACKEND
-// ─────────────────────────────────────────────────────────────────────────────
-// 1. Carrega os cursos do aluno logado via GET /alunos/me/cursos
-// 2. Upload real usando expo-document-picker OU expo-image-picker
-// 3. Converte o arquivo para base64 usando expo-file-system
-// 4. Submete via POST /submissoes + certificado embutido no payload
-//    (campo certificados[].urlArquivo = base64 — igual ao contrato do back)
-// 5. Erros de rede são exibidos inline sem travar o app
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -37,14 +25,20 @@ import { CursoAluno, getCursosAluno } from "../../../services/alunoService";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { styles } from "./style";
 
-// Categorias fixas — o back-end não tem endpoint de categorias,
-// então mantemos a lista local igual ao design original.
 const CATEGORIAS = ["Pesquisa", "Extensão", "Ensino", "Cultura", "Esporte"];
+
+function formatarData(raw: string): string {
+  const nums = raw.replace(/\D/g, "");
+  if (nums.length <= 2) return nums;
+  if (nums.length <= 4) return `${nums.slice(0, 2)}/${nums.slice(2)}`;
+  return `${nums.slice(0, 2)}/${nums.slice(2, 4)}/${nums.slice(4, 8)}`;
+}
 
 export default function NovaSubmissaoScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const currentUser = useCurrentUser();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { drawerOpen, openDrawer, closeDrawer, handleSelect, handleLogout } =
     useDrawerNavigation("submissao");
@@ -57,11 +51,11 @@ export default function NovaSubmissaoScreen() {
   const [descricao, setDescricao] = useState("");
   const [categoriaOpen, setCategoriaOpen] = useState(false);
 
-  // ── Arquivo selecionado ──────────────────────────────────────────────────
+  // ── Arquivo ──────────────────────────────────────────────────────────────
   const [arquivoNome, setArquivoNome] = useState<string | null>(null);
   const [arquivoBase64, setArquivoBase64] = useState<string | null>(null);
 
-  // ── Cursos do aluno logado ───────────────────────────────────────────────
+  // ── Cursos ───────────────────────────────────────────────────────────────
   const [cursos, setCursos] = useState<CursoAluno[]>([]);
   const [cursoSelecionadoId, setCursoSelecionadoId] = useState<number | null>(
     null,
@@ -74,18 +68,22 @@ export default function NovaSubmissaoScreen() {
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState(false);
 
-  // ── Carrega cursos ao montar ─────────────────────────────────────────────
+  // Limpa o timer ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  // ── Carrega cursos ───────────────────────────────────────────────────────
   useEffect(() => {
     (async () => {
       try {
         const lista = await getCursosAluno();
         setCursos(lista);
-        // Pré-seleciona o primeiro curso se houver apenas um
-        if (lista.length === 1) {
-          setCursoSelecionadoId(lista[0].id);
-        }
+        if (lista.length === 1) setCursoSelecionadoId(lista[0].id);
       } catch {
-        // Silencia — o aluno verá o seletor vazio e poderá tentar novamente
+        setErroEnvio("Não foi possível carregar seus cursos.");
       } finally {
         setLoadingCursos(false);
       }
@@ -93,28 +91,22 @@ export default function NovaSubmissaoScreen() {
   }, []);
 
   // ── Helpers de arquivo ───────────────────────────────────────────────────
-
-  // Lê o arquivo do disco e converte para base64 puro (sem prefixo data:...)
-  const lerBase64 = async (uri: string): Promise<string> => {
-    const base64comPrefixo = await FileSystem.readAsStringAsync(uri, {
+  const lerBase64 = async (uri: string): Promise<string> =>
+    FileSystem.readAsStringAsync(uri, {
       encoding: FileSystem.EncodingType.Base64,
     });
-    return base64comPrefixo; // expo-file-system já retorna só o base64
-  };
 
   const handleEscolherArquivo = async () => {
     try {
+      setErroEnvio(null);
       const resultado = await DocumentPicker.getDocumentAsync({
         type: ["application/pdf", "image/jpeg", "image/png"],
         copyToCacheDirectory: true,
       });
-
       if (resultado.canceled) return;
-
       const arquivo = resultado.assets[0];
       setArquivoNome(arquivo.name);
-      const b64 = await lerBase64(arquivo.uri);
-      setArquivoBase64(b64);
+      setArquivoBase64(await lerBase64(arquivo.uri));
     } catch {
       setErroEnvio("Não foi possível ler o arquivo. Tente novamente.");
     }
@@ -122,106 +114,98 @@ export default function NovaSubmissaoScreen() {
 
   const handleTirarFoto = async () => {
     try {
+      setErroEnvio(null);
       const permissao = await ImagePicker.requestCameraPermissionsAsync();
       if (!permissao.granted) {
         setErroEnvio("Permissão de câmera negada.");
         return;
       }
-
       const resultado = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
         quality: 0.8,
-        base64: true, // solicita base64 direto do ImagePicker
+        base64: true,
       });
-
       if (resultado.canceled) return;
-
       const foto = resultado.assets[0];
-      const nomeArquivo = `foto_certificado_${Date.now()}.jpg`;
-      setArquivoNome(nomeArquivo);
-
-      if (foto.base64) {
-        setArquivoBase64(foto.base64);
-      } else {
-        // Fallback via FileSystem se base64 não vier no asset
-        const b64 = await lerBase64(foto.uri);
-        setArquivoBase64(b64);
-      }
+      setArquivoNome(`foto_certificado_${Date.now()}.jpg`);
+      setArquivoBase64(foto.base64 ?? (await lerBase64(foto.uri)));
     } catch {
       setErroEnvio("Não foi possível capturar a foto. Tente novamente.");
     }
   };
 
   // ── Validação ────────────────────────────────────────────────────────────
-
-  const cursoNomeSelecionado =
-    cursos.find((c) => c.id === cursoSelecionadoId)?.nome ?? null;
+  const horasNum = parseInt(cargaHoraria, 10);
+  const horasValidas = !isNaN(horasNum) && horasNum >= 1 && horasNum <= 20;
 
   const isFormValid =
     titulo.trim() !== "" &&
     categoria.trim() !== "" &&
-    dataInicio.trim() !== "" &&
-    cargaHoraria.trim() !== "" &&
+    dataInicio.trim().length === 10 &&
+    horasValidas &&
     cursoSelecionadoId !== null &&
     arquivoBase64 !== null;
 
-  // ── Envio ────────────────────────────────────────────────────────────────
+  const cursoNomeSelecionado =
+    cursos.find((c) => c.id === cursoSelecionadoId)?.nome ?? null;
 
+  // ── Envio ────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    if (!isFormValid || !user) return;
+    if (!isFormValid || !user || enviando) return;
 
     setErroEnvio(null);
     setEnviando(true);
 
+    // Guarda os valores antes de limpar
+    const tituloEnvio = titulo.trim();
+    const horasEnvio = horasNum;
+    const cursoEnvio = cursoSelecionadoId;
+    const arquivoNomeEnvio = arquivoNome;
+    const arquivoBase64Envio = arquivoBase64;
+    const descricaoFinal = [
+      `Categoria: ${categoria}`,
+      `Data de início: ${dataInicio}`,
+      descricao.trim() ? descricao.trim() : "",
+    ]
+      .filter(Boolean)
+      .join(" | ");
+
+    // Limpa o formulário imediatamente antes da requisição
+    setTitulo("");
+    setCategoria("");
+    setDataInicio("");
+    setCargaHoraria("");
+    setDescricao("");
+    setArquivoNome(null);
+    setArquivoBase64(null);
+    if (cursos.length !== 1) setCursoSelecionadoId(null);
+
     try {
-      // O back-end espera:
-      // { titulo, descricao, horas, alunoId, cursoId,
-      //   certificados: [{ nomeArquivo, urlArquivo (base64) }] }
-      //
-      // Porém o SubmissaoRequestDTO só tem titulo/descricao/horas/alunoId/cursoId.
-      // Os certificados são criados junto via cascade no service
-      // (criarSubmissao já salva o certificado quando o payload inclui "certificados").
-      //
-      // Verificar o SubmissaoService: ele recebe SubmissaoRequestDTO sem certificados,
-      // e depois o front chama POST /certificados separado.
-      // Usamos o fluxo em dois passos para respeitar o contrato existente.
-
-      // Passo 1 — cria a submissão
-      const payloadSubmissao = {
-        titulo: titulo.trim(),
-        descricao: descricao.trim() || undefined,
-        horas: parseInt(cargaHoraria, 10),
-        alunoId: user.alunoId,
-        cursoId: cursoSelecionadoId,
-      };
-
+      // Passo 1 — cria a submissão com os valores guardados
       const { data: submissaoCriada } = await api.post<{ id: number }>(
         "/submissoes",
-        payloadSubmissao,
+        {
+          titulo: tituloEnvio,
+          descricao: descricaoFinal,
+          horas: horasEnvio,
+          alunoId: user.alunoId,
+          cursoId: cursoEnvio,
+        },
       );
 
-      // Passo 2 — anexa o certificado em base64
-      const payloadCertificado = {
-        nomeArquivo: arquivoNome ?? "certificado.pdf",
-        urlArquivo: arquivoBase64,
+      // Passo 2 — anexa o certificado
+      await api.post("/certificados", {
+        nomeArquivo: arquivoNomeEnvio ?? "certificado.pdf",
+        urlArquivo: arquivoBase64Envio,
         submissaoId: submissaoCriada.id,
-      };
+      });
 
-      await api.post("/certificados", payloadCertificado);
-
-      // Sucesso — limpa o formulário
+      // Botão fica verde por 2.5s
       setSucesso(true);
-      setTitulo("");
-      setCategoria("");
-      setDataInicio("");
-      setCargaHoraria("");
-      setDescricao("");
-      setArquivoNome(null);
-      setArquivoBase64(null);
-      if (cursos.length !== 1) setCursoSelecionadoId(null);
-
-      // Remove mensagem de sucesso após 4s
-      setTimeout(() => setSucesso(false), 4000);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        setSucesso(false);
+      }, 2500);
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??
@@ -234,11 +218,11 @@ export default function NovaSubmissaoScreen() {
   };
 
   // ── Render ───────────────────────────────────────────────────────────────
-
   return (
     <View style={styles.root}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
+      {/* Top bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           style={styles.menuButton}
@@ -272,35 +256,7 @@ export default function NovaSubmissaoScreen() {
             Submeta um certificado de atividade complementar
           </Text>
 
-          {/* ── Feedback de sucesso ── */}
-          {sucesso && (
-            <View
-              style={{
-                backgroundColor: "#DCFCE7",
-                borderRadius: 12,
-                padding: 14,
-                marginBottom: 14,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <Ionicons name="checkmark-circle" size={20} color="#15803D" />
-              <Text
-                style={{
-                  color: "#15803D",
-                  fontSize: 14,
-                  fontWeight: "600",
-                  flex: 1,
-                }}
-              >
-                Atividade enviada com sucesso! Aguarde a avaliação do
-                coordenador.
-              </Text>
-            </View>
-          )}
-
-          {/* ── Erro de envio ── */}
+          {/* Erro de envio */}
           {erroEnvio && (
             <View
               style={{
@@ -321,7 +277,7 @@ export default function NovaSubmissaoScreen() {
           )}
 
           <View style={styles.card}>
-            {/* ── Curso (dinâmico) ── */}
+            {/* Curso */}
             <Text style={styles.fieldLabel}>
               Curso <Text style={styles.required}>*</Text>
             </Text>
@@ -341,7 +297,6 @@ export default function NovaSubmissaoScreen() {
                 </Text>
               </View>
             ) : cursos.length === 1 ? (
-              // Se só tem um curso, mostra fixo sem abrir modal
               <View style={styles.inputWrapper}>
                 <Text style={[styles.input, { color: "#111827" }]}>
                   {cursos[0].nome}
@@ -376,7 +331,7 @@ export default function NovaSubmissaoScreen() {
               </TouchableOpacity>
             )}
 
-            {/* ── Título ── */}
+            {/* Título */}
             <Text style={[styles.fieldLabel, styles.mt18]}>
               Título da Atividade <Text style={styles.required}>*</Text>
             </Text>
@@ -390,7 +345,7 @@ export default function NovaSubmissaoScreen() {
               />
             </View>
 
-            {/* ── Categoria ── */}
+            {/* Categoria */}
             <Text style={[styles.fieldLabel, styles.mt18]}>
               Categoria <Text style={styles.required}>*</Text>
             </Text>
@@ -410,7 +365,7 @@ export default function NovaSubmissaoScreen() {
               />
             </TouchableOpacity>
 
-            {/* ── Data de Início ── */}
+            {/* Data de início */}
             <Text style={[styles.fieldLabel, styles.mt18]}>
               Data de Início <Text style={styles.required}>*</Text>
             </Text>
@@ -420,8 +375,9 @@ export default function NovaSubmissaoScreen() {
                 placeholder="DD/MM/AAAA"
                 placeholderTextColor="#9CA3AF"
                 value={dataInicio}
-                onChangeText={setDataInicio}
+                onChangeText={(v) => setDataInicio(formatarData(v))}
                 keyboardType="numeric"
+                maxLength={10}
               />
               <Ionicons
                 name="calendar-outline"
@@ -431,7 +387,7 @@ export default function NovaSubmissaoScreen() {
               />
             </View>
 
-            {/* ── Carga Horária ── */}
+            {/* Carga horária */}
             <Text style={[styles.fieldLabel, styles.mt18]}>
               Carga Horária (horas) <Text style={styles.required}>*</Text>
             </Text>
@@ -442,27 +398,28 @@ export default function NovaSubmissaoScreen() {
                 placeholderTextColor="#9CA3AF"
                 value={cargaHoraria}
                 onChangeText={(v) => {
-                  // Bloqueia valor acima de 20 em tempo real
                   const num = parseInt(v, 10);
-                  if (!isNaN(num) && num > 20) {
-                    setCargaHoraria("20");
-                  } else {
-                    setCargaHoraria(v);
-                  }
+                  if (!isNaN(num) && num > 20) setCargaHoraria("20");
+                  else setCargaHoraria(v.replace(/[^0-9]/g, ""));
                 }}
                 keyboardType="numeric"
               />
             </View>
+            {cargaHoraria !== "" && !horasValidas && (
+              <Text style={{ fontSize: 11.5, color: "#EF4444", marginTop: 4 }}>
+                Informe um valor entre 1 e 20 horas.
+              </Text>
+            )}
             <Text style={{ fontSize: 11.5, color: "#9CA3AF", marginTop: 4 }}>
-              O back-end limita 20h por submissão.
+              Limite de 20h por submissão.
             </Text>
 
-            {/* ── Descrição ── */}
+            {/* Descrição */}
             <Text style={[styles.fieldLabel, styles.mt18]}>Descrição</Text>
             <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="Breve descrição da atividade realizada"
+                placeholder="Breve descrição da atividade realizada (opcional)"
                 placeholderTextColor="#9CA3AF"
                 value={descricao}
                 onChangeText={setDescricao}
@@ -472,7 +429,7 @@ export default function NovaSubmissaoScreen() {
               />
             </View>
 
-            {/* ── Certificado ── */}
+            {/* Certificado */}
             <Text style={[styles.fieldLabel, styles.mt18]}>
               Certificado / Comprovante <Text style={styles.required}>*</Text>
             </Text>
@@ -485,7 +442,7 @@ export default function NovaSubmissaoScreen() {
                 />
               </View>
               <Text style={styles.uploadHint}>
-                {arquivoNome ?? "PDF, JPG ou PNG (max 5MB)"}
+                {arquivoNome ?? "PDF, JPG ou PNG (máx. 5MB)"}
               </Text>
               {arquivoBase64 && (
                 <Text
@@ -494,7 +451,6 @@ export default function NovaSubmissaoScreen() {
                   ✓ Arquivo carregado e pronto para envio
                 </Text>
               )}
-
               <View style={styles.uploadActions}>
                 <TouchableOpacity
                   style={styles.uploadPrimaryBtn}
@@ -508,7 +464,6 @@ export default function NovaSubmissaoScreen() {
                   />
                   <Text style={styles.uploadPrimaryText}>Escolher</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                   style={styles.uploadSecondaryBtn}
                   onPress={handleTirarFoto}
@@ -521,18 +476,29 @@ export default function NovaSubmissaoScreen() {
             </View>
           </View>
 
-          {/* ── Botão de envio ── */}
+          {/* Botão de envio */}
           <TouchableOpacity
             style={[
               styles.submitButton,
-              (!isFormValid || enviando) && styles.submitButtonDisabled,
+              !sucesso && !isFormValid && styles.submitButtonDisabled,
+              sucesso && {
+                backgroundColor: "#22C55E",
+                shadowColor: "#22C55E",
+              },
             ]}
-            onPress={handleSubmit}
-            activeOpacity={0.85}
-            disabled={!isFormValid || enviando}
+            onPress={sucesso ? undefined : handleSubmit}
+            activeOpacity={sucesso ? 1 : 0.85}
+            disabled={enviando}
           >
             {enviando ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : sucesso ? (
+              <>
+                <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                <Text style={styles.submitButtonText}>
+                  Enviado com sucesso!
+                </Text>
+              </>
             ) : (
               <>
                 <Ionicons name="checkmark" size={20} color="#FFFFFF" />
@@ -543,7 +509,7 @@ export default function NovaSubmissaoScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* ── Modal de Categoria ── */}
+      {/* Modal de Categoria */}
       <Modal
         visible={categoriaOpen}
         transparent
@@ -586,7 +552,7 @@ export default function NovaSubmissaoScreen() {
         </TouchableOpacity>
       </Modal>
 
-      {/* ── Modal de Curso ── */}
+      {/* Modal de Curso */}
       <Modal
         visible={cursoOpen}
         transparent

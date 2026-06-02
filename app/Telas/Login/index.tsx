@@ -3,16 +3,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -20,6 +20,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { styles } from "./style";
 
 const logoSenac = require("../../../assets/images/logo_senac_branca.png");
+const logoGENAT = require("../../../assets/images/logoGENAT.png");
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -85,7 +86,7 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingTop: insets.top + 41, paddingBottom: insets.bottom + 55 },
+            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 55 },
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -98,7 +99,7 @@ export default function LoginScreen() {
             />
           </View>
 
-          <Text style={styles.title}>Entrar no Sistema</Text>
+          <Text style={styles.title}>Atividades Complementares</Text>
           <Text style={styles.subtitle}>Faça login para continuar</Text>
 
           <View style={styles.form}>
@@ -180,6 +181,16 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.forgotWrapper}>
               <Text style={styles.forgotText}>Esqueci minha senha</Text>
             </TouchableOpacity>
+          </View>
+          <View style={styles.poweredByWrapper}>
+            <Image
+              source={logoGENAT}
+              style={styles.genatLogo}
+              resizeMode="contain"
+            />
+            <Text style={styles.poweredByText}>
+              powered by <Text style={{ fontWeight: "bold" }}>genat</Text>
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

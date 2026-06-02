@@ -125,4 +125,22 @@ export const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.7)",
     fontWeight: "500",
   },
+
+  poweredByWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    marginTop: 36,
+    opacity: 0.35,
+  },
+  genatLogo: {
+    width: 22,
+    height: 22,
+  },
+  poweredByText: {
+    fontSize: 11,
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
+  },
 });
