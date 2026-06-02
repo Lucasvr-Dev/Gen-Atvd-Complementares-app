@@ -18,7 +18,12 @@ import { styles } from "./style";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.8;
 
-export type MenuItemKey = "dashboard" | "submissao" | "regras" | "notificacoes";
+export type MenuItemKey =
+  | "dashboard"
+  | "submissao"
+  | "historico"
+  | "regras"
+  | "notificacoes";
 
 interface MenuItem {
   key: MenuItemKey;
@@ -29,6 +34,7 @@ interface MenuItem {
 const MENU_ITEMS: MenuItem[] = [
   { key: "dashboard", label: "Dashboard", icon: "grid-outline" },
   { key: "submissao", label: "Nova Submissão", icon: "cloud-upload-outline" },
+  { key: "historico", label: "Histórico de Submissões", icon: "time-outline" },
   { key: "regras", label: "Regras do Curso", icon: "book-outline" },
   { key: "notificacoes", label: "Notificações", icon: "notifications-outline" },
 ];
