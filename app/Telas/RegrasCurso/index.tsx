@@ -1,22 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import SideDrawer from "../../../app/componentes/SideDrawer";
 import { useDrawerNavigation } from "../../../app/hooks/userDrawerNavigation";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { styles } from "./style";
-
-const currentUser = { name: "Vitor Shampo", email: "vitorshampo@gmail.com" };
 
 export default function RegrasCursoScreen() {
   const insets = useSafeAreaInsets();
+  const currentUser = useCurrentUser(); // ← aqui dentro
   const { drawerOpen, openDrawer, closeDrawer, handleSelect, handleLogout } =
     useDrawerNavigation("regras");
 
