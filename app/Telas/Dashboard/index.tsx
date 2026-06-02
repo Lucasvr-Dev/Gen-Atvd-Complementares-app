@@ -1,23 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, G } from "react-native-svg";
 
 import SideDrawer from "../../../app/componentes/SideDrawer";
 import { useDrawerNavigation } from "../../../app/hooks/userDrawerNavigation";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { styles } from "./style";
-
-const currentUser = {
-  name: "Vitor Shampo",
-  email: "vitorshampo@gmail.com",
-};
 
 const courses = [
   { id: 1, name: "Engenharia de Software", progress: 60, active: true },
@@ -206,6 +202,8 @@ function StatusBadge({ status }: { status: SubmissionStatus }) {
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const maxAreaValue = Math.max(...areaProgress.map((a) => a.value), 60);
+
+  const currentUser = useCurrentUser();
 
   const { drawerOpen, openDrawer, closeDrawer, handleSelect, handleLogout } =
     useDrawerNavigation("dashboard");

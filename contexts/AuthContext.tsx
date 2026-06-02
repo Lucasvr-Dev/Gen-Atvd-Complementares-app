@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
 } from "react";
 import { api } from "../lib/api";
 
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Restaura sessão salva no AsyncStorage ao iniciar o app
   useEffect(() => {
     (async () => {
       try {
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, senha: string) => {
+    // Passo 1 — autenticação
     const { data } = await api.post<{ token: string }>("/api/auth/login", {
       email,
       senha,
@@ -71,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
+    // Valida role — só ALUNO pode usar o app mobile
     const payload = decodeJwtPayload(token);
     const roles: string[] = payload.roles ?? [];
     const role = roles[0] ?? "";
@@ -79,13 +82,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("Acesso restrito ao painel do aluno.");
     }
 
-    const { data: usuarioData } = await api.get("/usuarios/me");
-    const { data: alunoData } = await api.get("/alunos/me");
+    // Passo 2 — busca dados do usuário
+    const { data: usuarioData } = await api.get<{
+      id: number;
+      nome: string;
+      email: string;
+    }>("/usuarios/me");
+
+    // Passo 3 — busca dados do aluno
+    // O endpoint GET /alunos/me retorna AlunoDTO:
+    //   { nome, email, matricula, cursoId, usuarioId }
+    // O "usuarioId" do AlunoDTO é o ID real na tabela tb_alunos (PK = usuario_id).
+    // É esse valor que o SubmissaoRequestDTO espera no campo "alunoId".
+    const { data: alunoData } = await api.get<{
+      usuarioId?: number;
+      id?: number;
+    }>("/alunos/me");
 
     const authUser: AuthUser = {
       token,
       usuarioId: usuarioData.id,
-      alunoId: alunoData.usuarioId ?? alunoData.id,
+      // Preferencia: usuarioId do AlunoDTO; fallback: id genérico
+      alunoId: alunoData.usuarioId ?? alunoData.id ?? usuarioData.id,
       nome: usuarioData.nome,
       email: usuarioData.email,
     };
