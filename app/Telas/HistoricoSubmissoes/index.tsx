@@ -18,7 +18,7 @@ import SideDrawer from "../../../app/componentes/SideDrawer";
 import { useDrawerNavigation } from "../../../app/hooks/userDrawerNavigation";
 import { styles } from "./style";
 
-// ─── Tipos ───────────────────────────────────────────────────────────────
+// ─── Tipos ───────────────────────────────────────────────
 
 type StatusSubmissao = "PENDENTE" | "APROVADA" | "REPROVADA";
 
@@ -43,10 +43,6 @@ interface HistoricoSubmissao {
 
 type Filtro = "TODAS" | StatusSubmissao;
 
-// ─── Usuário/Endpoint ────────────────────────────────────────────────────
-// Estes valores serão substituídos por contexto real quando o app
-// migrar para chamadas autenticadas. Mantidos aqui para alinhamento
-// com o padrão do Dashboard.
 const currentUser = {
   name: "Vitor Shampo",
   email: "vitorshampo@gmail.com",
@@ -56,9 +52,6 @@ const API_BASE =
   (process.env.EXPO_PUBLIC_API_URL as string | undefined) ??
   "http://localhost:8080";
 
-// Dados de exemplo enquanto o app não tem chamada autenticada real.
-// Quando o app integrar JWT, o fetch abaixo passa a retornar dados reais
-// e este fallback continuará servindo apenas quando a API estiver fora.
 const MOCK_DATA: HistoricoSubmissao[] = [
   {
     id: 12,
@@ -70,9 +63,7 @@ const MOCK_DATA: HistoricoSubmissao[] = [
     status: "PENDENTE",
     quantidadeRegistros: 1,
     observacao: null,
-    certificados: [
-      { id: 22, nomeArquivo: "seminario-ia.pdf", urlArquivo: "" },
-    ],
+    certificados: [{ id: 22, nomeArquivo: "seminario-ia.pdf", urlArquivo: "" }],
   },
   {
     id: 9,
@@ -113,13 +104,9 @@ const MOCK_DATA: HistoricoSubmissao[] = [
     status: "REPROVADA",
     quantidadeRegistros: 1,
     observacao: "Avaliada por Ana Coordenadora",
-    certificados: [
-      { id: 11, nomeArquivo: "grupo-teatro.jpg", urlArquivo: "" },
-    ],
+    certificados: [{ id: 11, nomeArquivo: "grupo-teatro.jpg", urlArquivo: "" }],
   },
 ];
-
-// ─── Utilidades visuais ──────────────────────────────────────────────────
 
 const statusColors: Record<StatusSubmissao, { bg: string; color: string }> = {
   PENDENTE: { bg: "#FEF3C7", color: "#B45309" },
@@ -155,8 +142,6 @@ function StatusBadge({ status }: { status: StatusSubmissao }) {
   );
 }
 
-// ─── Tela ────────────────────────────────────────────────────────────────
-
 export default function HistoricoSubmissoesScreen() {
   const insets = useSafeAreaInsets();
   const { drawerOpen, openDrawer, closeDrawer, handleSelect, handleLogout } =
@@ -176,16 +161,12 @@ export default function HistoricoSubmissoesScreen() {
     setError(null);
 
     try {
-      // Quando o app integrar JWT, basta enviar o header Authorization:
-      //   const token = await getStoredToken();
-      //   headers: { Authorization: `Bearer ${token}` }
       const resp = await fetch(`${API_BASE}/submissoes/historico`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data: HistoricoSubmissao[] = await resp.json();
       setItems(Array.isArray(data) ? data : []);
     } catch {
-      // Fallback de exibição enquanto a integração não está habilitada
-      // — evita uma tela vazia em ambiente de desenvolvimento.
+      // Fallback de exibição enquanto a integração JWT não está habilitada no app
       setItems(MOCK_DATA);
     } finally {
       setLoading(false);
@@ -360,7 +341,6 @@ export default function HistoricoSubmissoesScreen() {
         ListEmptyComponent={renderEmpty}
       />
 
-      {/* Modal de detalhes */}
       <Modal
         visible={!!selecionada}
         transparent

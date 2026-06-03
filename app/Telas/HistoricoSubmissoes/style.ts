@@ -1,15 +1,9 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#F3F4F6",
-  },
-  flex: {
-    flex: 1,
-  },
+  root: { flex: 1, backgroundColor: "#F3F4F6" },
+  flex: { flex: 1 },
 
-  // Top bar
   topBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -28,43 +22,15 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  topBarCenter: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  topBarTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1F2937",
-  },
+  topBarCenter: { flexDirection: "row", alignItems: "center", gap: 6 },
+  topBarTitle: { fontSize: 14, fontWeight: "700", color: "#1F2937" },
 
-  // Scroll
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
+  scrollContent: { paddingHorizontal: 16, paddingTop: 16 },
 
-  // Header
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#111827",
-  },
-  pageSubtitle: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginTop: 4,
-    marginBottom: 16,
-  },
+  pageTitle: { fontSize: 24, fontWeight: "800", color: "#111827" },
+  pageSubtitle: { fontSize: 13, color: "#6B7280", marginTop: 4, marginBottom: 16 },
 
-  // Filtros (chips)
-  filtersRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 16,
-    flexWrap: "wrap",
-  },
+  filtersRow: { flexDirection: "row", gap: 8, marginBottom: 16, flexWrap: "wrap" },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -73,37 +39,13 @@ export const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
     backgroundColor: "#FFFFFF",
   },
-  chipActive: {
-    backgroundColor: "#6366F1",
-    borderColor: "#6366F1",
-  },
-  chipLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#374151",
-  },
-  chipLabelActive: {
-    color: "#FFFFFF",
-  },
+  chipActive: { backgroundColor: "#6366F1", borderColor: "#6366F1" },
+  chipLabel: { fontSize: 12, fontWeight: "600", color: "#374151" },
+  chipLabelActive: { color: "#FFFFFF" },
 
-  // Estados
-  stateBox: {
-    paddingVertical: 56,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-  },
-  stateTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#374151",
-  },
-  stateText: {
-    fontSize: 13,
-    color: "#6B7280",
-    textAlign: "center",
-    paddingHorizontal: 32,
-  },
+  stateBox: { paddingVertical: 56, alignItems: "center", justifyContent: "center", gap: 10 },
+  stateTitle: { fontSize: 15, fontWeight: "700", color: "#374151" },
+  stateText: { fontSize: 13, color: "#6B7280", textAlign: "center", paddingHorizontal: 32 },
   retryButton: {
     marginTop: 12,
     paddingHorizontal: 18,
@@ -111,13 +53,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "#6366F1",
     borderRadius: 10,
   },
-  retryButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 13,
-  },
+  retryButtonText: { color: "#FFFFFF", fontWeight: "700", fontSize: 13 },
 
-  // Card de submissão
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
@@ -137,24 +74,10 @@ export const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 12,
   },
-  cardTitleWrapper: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  cardSubtitle: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginTop: 2,
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
+  cardTitleWrapper: { flex: 1 },
+  cardTitle: { fontSize: 15, fontWeight: "700", color: "#111827" },
+  cardSubtitle: { fontSize: 12, color: "#6B7280", marginTop: 2 },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   badgeText: {
     fontSize: 10,
     fontWeight: "800",
@@ -162,26 +85,10 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
 
-  metaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 12,
-  },
-  metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  metaText: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
-  metaTextStrong: {
-    fontSize: 12,
-    color: "#374151",
-    fontWeight: "600",
-  },
+  metaRow: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 12 },
+  metaItem: { flexDirection: "row", alignItems: "center", gap: 4 },
+  metaText: { fontSize: 12, color: "#6B7280" },
+  metaTextStrong: { fontSize: 12, color: "#374151", fontWeight: "600" },
 
   observacaoBox: {
     marginTop: 12,
@@ -191,10 +98,7 @@ export const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: "#F59E0B",
   },
-  observacaoText: {
-    fontSize: 12,
-    color: "#92400E",
-  },
+  observacaoText: { fontSize: 12, color: "#92400E" },
 
   cardFooter: {
     marginTop: 14,
@@ -211,13 +115,8 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#EEF2FF",
   },
-  detailsButtonText: {
-    color: "#4F46E5",
-    fontWeight: "700",
-    fontSize: 13,
-  },
+  detailsButtonText: { color: "#4F46E5", fontWeight: "700", fontSize: 13 },
 
-  // Modal de detalhes
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(15, 23, 42, 0.55)",
@@ -300,10 +199,5 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
   },
-  certificadoName: {
-    fontSize: 13,
-    color: "#111827",
-    fontWeight: "600",
-    flex: 1,
-  },
+  certificadoName: { fontSize: 13, color: "#111827", fontWeight: "600", flex: 1 },
 });
