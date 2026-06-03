@@ -3,33 +3,64 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useAuth } from "../../../contexts/AuthContext";
 import { styles } from "./style";
 
 const logoSenac = require("../../../assets/images/logo_senac_branca.png");
+const logoGENAT = require("../../../assets/images/logoGENAT.png");
 
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    console.log("Login:", { email, password });
-    // Usa replace para impedir voltar ao login após logar
-    router.replace("/Telas/Dashboard");
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      setError("Preencha e-mail e senha.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    try {
+      await login(email.trim(), password);
+      router.replace("/Telas/Dashboard");
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (status === 401) {
+        setError("E-mail ou senha inválidos.");
+      } else if (status === 403) {
+        setError("Acesso negado.");
+      } else if (err?.message?.includes("Acesso restrito")) {
+        setError(err.message);
+      } else {
+        setError(
+          `Erro: ${err?.message} | status: ${err?.response?.status} | ${JSON.stringify(err?.response?.data)}`,
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,7 +86,7 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingTop: insets.top + 41, paddingBottom: insets.bottom + 55 },
+            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 55 },
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -68,7 +99,7 @@ export default function LoginScreen() {
             />
           </View>
 
-          <Text style={styles.title}>Entrar no Sistema</Text>
+          <Text style={styles.title}>Atividades Complementares</Text>
           <Text style={styles.subtitle}>Faça login para continuar</Text>
 
           <View style={styles.form}>
@@ -83,6 +114,7 @@ export default function LoginScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!loading}
               />
             </View>
 
@@ -95,6 +127,7 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
+                editable={!loading}
               />
               <TouchableOpacity
                 style={styles.eyeButton}
@@ -108,17 +141,56 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
+            {error ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                  marginTop: 12,
+                  backgroundColor: "rgba(255,107,107,0.15)",
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                }}
+              >
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={16}
+                  color="#FF6B6B"
+                />
+                <Text style={{ color: "#FF6B6B", fontSize: 13, flex: 1 }}>
+                  {error}
+                </Text>
+              </View>
+            ) : null}
+
             <TouchableOpacity
-              style={styles.loginButton}
+              style={[styles.loginButton, loading && { opacity: 0.7 }]}
               onPress={handleLogin}
               activeOpacity={0.85}
+              disabled={loading}
             >
-              <Text style={styles.loginButtonText}>Entrar</Text>
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.loginButtonText}>Entrar</Text>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.forgotWrapper}>
               <Text style={styles.forgotText}>Esqueci minha senha</Text>
             </TouchableOpacity>
+          </View>
+          <View style={styles.poweredByWrapper}>
+            <Image
+              source={logoGENAT}
+              style={styles.genatLogo}
+              resizeMode="contain"
+            />
+            <Text style={styles.poweredByText}>
+              powered by <Text style={{ fontWeight: "bold" }}>genat</Text>
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

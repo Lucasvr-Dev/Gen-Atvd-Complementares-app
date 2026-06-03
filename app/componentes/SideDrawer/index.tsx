@@ -65,6 +65,7 @@ export default function SideDrawer({
 
   const translateX = React.useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = React.useRef(new Animated.Value(0)).current;
+
   const [isMounted, setIsMounted] = React.useState(visible);
 
   React.useEffect(() => {
