@@ -1,13 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://192.168.0.106:8080";
+const BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ?? "https://api-senac-5zz7.onrender.com";
 
 console.log(">>> BASE_URL da API:", BASE_URL);
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000,
+  timeout: 60000, // 60s para aguentar o Render acordar
 });
 
 // Interceptor de REQUEST — injeta o token JWT em toda requisição
