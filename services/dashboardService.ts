@@ -6,6 +6,9 @@ export interface DashboardStats {
   horasPendentes: number;
   horasRejeitadas: number;
   metaTotal: number;
+  submissoesAprovadas: number;
+  submissoesPendentes: number;
+  submissoesRejeitadas: number;
 }
 
 export interface SubmissaoDashboard {
@@ -58,6 +61,17 @@ export async function getDashboardData(
     .filter((s) => s.status === "REPROVADA")
     .reduce((acc: number, s: any) => acc + s.horas, 0);
 
+  // Contagem de submissões por status
+  const submissoesAprovadas = minhasSubmissoes.filter(
+    (s) => s.status === "APROVADA",
+  ).length;
+  const submissoesPendentes = minhasSubmissoes.filter(
+    (s) => s.status === "PENDENTE",
+  ).length;
+  const submissoesRejeitadas = minhasSubmissoes.filter(
+    (s) => s.status === "REPROVADA",
+  ).length;
+
   // Meta total vem da soma das cargas horárias dos cursos
   const metaTotal = cursos.reduce((acc, c) => acc + c.cargaHorariaMinima, 0);
 
@@ -94,7 +108,15 @@ export async function getDashboardData(
 
   return {
     cursos,
-    stats: { horasAprovadas, horasPendentes, horasRejeitadas, metaTotal },
+    stats: {
+      horasAprovadas,
+      horasPendentes,
+      horasRejeitadas,
+      metaTotal,
+      submissoesAprovadas,
+      submissoesPendentes,
+      submissoesRejeitadas,
+    },
     submissoesRecentes,
     progressoPorArea,
   };

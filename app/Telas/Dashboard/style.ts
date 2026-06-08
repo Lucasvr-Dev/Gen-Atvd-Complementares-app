@@ -77,16 +77,16 @@ export const styles = StyleSheet.create({
   },
   courseProgress: { fontSize: 13, color: "#6B7280" },
 
+  statsSectionLabel: { marginTop: 18 },
+
   statsGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "space-between",
-    marginTop: 14,
     gap: 10,
   },
 
   statCard: {
-    width: "48.5%",
+    flex: 1,
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 14,
