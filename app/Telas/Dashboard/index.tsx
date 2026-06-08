@@ -317,50 +317,48 @@ export default function DashboardScreen() {
           </>
         )}
 
-        {/* Stats grid */}
+        {/* Stats grid - quantidade de submissões por status */}
         {data && (
-          <View style={styles.statsGrid}>
-            {[
-              {
-                icon: "checkmark-circle" as const,
-                label: "Horas Aprovadas",
-                value: `${data.stats.horasAprovadas}h`,
-                color: "#22C55E",
-                bg: "#DCFCE7",
-              },
-              {
-                icon: "time" as const,
-                label: "Horas Pendentes",
-                value: `${data.stats.horasPendentes}h`,
-                color: "#F59E0B",
-                bg: "#FEF3C7",
-              },
-              {
-                icon: "close-circle" as const,
-                label: "Horas Rejeitadas",
-                value: `${data.stats.horasRejeitadas}h`,
-                color: "#EF4444",
-                bg: "#FEE2E2",
-              },
-              {
-                icon: "book" as const,
-                label: "Meta Total",
-                value: `${data.stats.metaTotal}h`,
-                color: "#6366F1",
-                bg: "#E0E7FF",
-              },
-            ].map((stat, idx) => (
-              <View key={idx} style={styles.statCard}>
-                <View
-                  style={[styles.statIconBox, { backgroundColor: stat.bg }]}
-                >
-                  <Ionicons name={stat.icon} size={18} color={stat.color} />
+          <>
+            <Text style={[styles.sectionLabel, styles.statsSectionLabel]}>
+              Submissões
+            </Text>
+            <View style={styles.statsGrid}>
+              {[
+                {
+                  icon: "checkmark-circle" as const,
+                  label: "Aprovadas",
+                  value: String(data.stats.submissoesAprovadas),
+                  color: "#22C55E",
+                  bg: "#DCFCE7",
+                },
+                {
+                  icon: "time" as const,
+                  label: "Pendentes",
+                  value: String(data.stats.submissoesPendentes),
+                  color: "#F59E0B",
+                  bg: "#FEF3C7",
+                },
+                {
+                  icon: "close-circle" as const,
+                  label: "Rejeitadas",
+                  value: String(data.stats.submissoesRejeitadas),
+                  color: "#EF4444",
+                  bg: "#FEE2E2",
+                },
+              ].map((stat, idx) => (
+                <View key={idx} style={styles.statCard}>
+                  <View
+                    style={[styles.statIconBox, { backgroundColor: stat.bg }]}
+                  >
+                    <Ionicons name={stat.icon} size={18} color={stat.color} />
+                  </View>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
                 </View>
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          </>
         )}
 
         {/* Gráfico donut */}
