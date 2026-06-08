@@ -213,4 +213,66 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     textTransform: "lowercase",
   },
+
+  courseSwitchIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  courseSwitchText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#6366F1",
+  },
+
+  coursePickerOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(17, 24, 39, 0.45)",
+    justifyContent: "flex-end",
+  },
+  coursePickerSheet: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  coursePickerHandle: {
+    alignSelf: "center",
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#E5E7EB",
+    marginBottom: 14,
+  },
+  coursePickerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  coursePickerSubtitle: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginBottom: 16,
+  },
+  coursePickerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    gap: 12,
+  },
+  coursePickerItemSelected: {
+    backgroundColor: "#EEF2FF",
+    borderColor: "#6366F1",
+  },
 });
