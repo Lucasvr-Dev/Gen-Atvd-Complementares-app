@@ -1,7 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
+    Modal,
+    Pressable,
     RefreshControl,
     ScrollView,
     StatusBar,
@@ -25,6 +28,8 @@ import { styles } from "./style";
 // ── Tipos ────────────────────────────────────────────────────────────────────
 
 type SubmissionStatus = "PENDENTE" | "APROVADA" | "REPROVADA";
+
+const SELECTED_COURSE_STORAGE_KEY = "@dashboard:selectedCourseId";
 
 // ── Componente DonutChart ────────────────────────────────────────────────────
 
@@ -159,6 +164,46 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [coursePickerOpen, setCoursePickerOpen] = useState(false);
+
+  // Carrega curso salvo do AsyncStorage ao montar
+  useEffect(() => {
+    AsyncStorage.getItem(SELECTED_COURSE_STORAGE_KEY).then((saved) => {
+      if (saved) setSelectedCourseId(Number(saved));
+    });
+  }, []);
+
+  // Garante que o curso selecionado seja sempre um dos matriculados
+  // (se nao tiver selecao ou a salva nao bater, cai no primeiro)
+  useEffect(() => {
+    if (!data || data.cursos.length === 0) return;
+    const isValid = data.cursos.some((c) => c.id === selectedCourseId);
+    if (!isValid) {
+      setSelectedCourseId(data.cursos[0].id);
+    }
+  }, [data, selectedCourseId]);
+
+  const selectedCourse = useMemo(
+    () => data?.cursos.find((c) => c.id === selectedCourseId) ?? null,
+    [data, selectedCourseId],
+  );
+
+  const hasMultipleCourses = (data?.cursos.length ?? 0) > 1;
+
+  const handleSelectCourse = useCallback(async (cursoId: number) => {
+    setSelectedCourseId(cursoId);
+    setCoursePickerOpen(false);
+    try {
+      await AsyncStorage.setItem(
+        SELECTED_COURSE_STORAGE_KEY,
+        String(cursoId),
+      );
+    } catch {
+      // ignora falha de persistencia, a selecao em memoria continua valendo
+    }
+  }, []);
+
   const fetchData = useCallback(async () => {
     if (!user) return;
     try {
@@ -280,40 +325,41 @@ export default function DashboardScreen() {
           </View>
         )}
 
-        {/* Meus cursos */}
-        {data && data.cursos.length > 0 && (
+        {/* Meus cursos - mostra o selecionado, abre picker se houver mais de um */}
+        {selectedCourse && (
           <>
             <Text style={styles.sectionLabel}>Meus Cursos</Text>
-            {data.cursos.map((course, idx) => (
+            <TouchableOpacity
+              style={[styles.courseCard, styles.courseCardActive]}
+              activeOpacity={hasMultipleCourses ? 0.7 : 1}
+              onPress={
+                hasMultipleCourses
+                  ? () => setCoursePickerOpen(true)
+                  : undefined
+              }
+            >
               <View
-                key={course.id}
-                style={[
-                  styles.courseCard,
-                  idx === 0 && styles.courseCardActive,
-                ]}
+                style={[styles.courseIconBox, styles.courseIconBoxActive]}
               >
-                <View
-                  style={[
-                    styles.courseIconBox,
-                    idx === 0
-                      ? styles.courseIconBoxActive
-                      : styles.courseIconBoxInactive,
-                  ]}
-                >
+                <Ionicons name="book" size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.courseName}>{selectedCourse.nome}</Text>
+                <Text style={styles.courseProgress}>
+                  Meta: {selectedCourse.cargaHorariaMinima}h
+                </Text>
+              </View>
+              {hasMultipleCourses && (
+                <View style={styles.courseSwitchIndicator}>
+                  <Text style={styles.courseSwitchText}>Trocar</Text>
                   <Ionicons
-                    name="book"
-                    size={22}
-                    color={idx === 0 ? "#FFFFFF" : "#9CA3AF"}
+                    name="chevron-down"
+                    size={16}
+                    color="#6366F1"
                   />
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.courseName}>{course.nome}</Text>
-                  <Text style={styles.courseProgress}>
-                    Meta: {course.cargaHorariaMinima}h
-                  </Text>
-                </View>
-              </View>
-            ))}
+              )}
+            </TouchableOpacity>
           </>
         )}
 
@@ -483,6 +529,80 @@ export default function DashboardScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Bottom sheet de selecao de curso */}
+      <Modal
+        visible={coursePickerOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCoursePickerOpen(false)}
+      >
+        <Pressable
+          style={styles.coursePickerOverlay}
+          onPress={() => setCoursePickerOpen(false)}
+        >
+          <Pressable
+            style={[
+              styles.coursePickerSheet,
+              { paddingBottom: insets.bottom + 16 },
+            ]}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={styles.coursePickerHandle} />
+            <Text style={styles.coursePickerTitle}>Trocar de curso</Text>
+            <Text style={styles.coursePickerSubtitle}>
+              Selecione qual curso você quer acompanhar
+            </Text>
+            <ScrollView
+              style={{ maxHeight: 360 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {data?.cursos.map((course) => {
+                const isSelected = course.id === selectedCourseId;
+                return (
+                  <TouchableOpacity
+                    key={course.id}
+                    style={[
+                      styles.coursePickerItem,
+                      isSelected && styles.coursePickerItemSelected,
+                    ]}
+                    activeOpacity={0.7}
+                    onPress={() => handleSelectCourse(course.id)}
+                  >
+                    <View
+                      style={[
+                        styles.courseIconBox,
+                        isSelected
+                          ? styles.courseIconBoxActive
+                          : styles.courseIconBoxInactive,
+                      ]}
+                    >
+                      <Ionicons
+                        name="book"
+                        size={22}
+                        color={isSelected ? "#FFFFFF" : "#9CA3AF"}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.courseName}>{course.nome}</Text>
+                      <Text style={styles.courseProgress}>
+                        Meta: {course.cargaHorariaMinima}h
+                      </Text>
+                    </View>
+                    {isSelected && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={22}
+                        color="#6366F1"
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <SideDrawer
         visible={drawerOpen}
